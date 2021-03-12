@@ -1,46 +1,78 @@
 const express = require('express');
 const router = express.Router();
+
+// import aws 'software development kit'
 const AWS = require("aws-sdk");
+
+// modify the AWS config object that DynamoDB will use to connect to the local instance
+// config points to local instance,
+// updates local environmental variables
 const awsConfig = {
   region: "us-east-2",
   endpoint: "http://localhost:8000",
 
 };
 AWS.config.update(awsConfig);
+
+// create the DynamoDB service object
+// note we're using the DynamoDB.DocumentClient() class to create a service interface object, dynamodb
 const dynamodb = new AWS.DynamoDB.DocumentClient();
+// set table value to 'thoughts'
 const table = "Thoughts";
 
 // get all users' thoughts
 router.get('/users', (req, res) => {
   const params = {
+    // TableName property is assigned 'Thoughts' through the constant
     TableName: table
   };
+  // pass the params object into the DynamoDB call
+  // use the scan method to return all items of the table
   dynamodb.scan(params, (err, data) => {
     if (err) {
-      res.status(500).json(err); // an error occurred
+      res.status(500).json(err); // include status code in case an error occurred
     } else {
+      // data in the table is in the Items property of the response
       res.json(data.Items)
     }
   });
 })
 
 // get thoughts from a user
+// use query parameters to pass the username from the client to the server
 router.get('/users/:username', (req, res) => {
   console.log(`Querying for thought(s) from ${req.params.username}.`);
+  // declare params to define the query call to DynamoDB
   const params = {
     TableName: table,
+    // this code provides a condition to the query aka this is the search criteria (similar to where in SQL)
+    // in this case, we are only interested in a single user so we condition with the query parameter
+    // that we assigned ':user'
+    // use aliases 
+    // we use the = operator to specify all items that pertain to a single username
     KeyConditionExpression: "#un = :user",
+    // define aliases to represent attribute name
+    // DynamoDB suggests using aliases as a best practice to avoid a list of reserved words
     ExpressionAttributeNames: {
       "#un": "username",
       "#ca": "createdAt",
       "#th": "thought"
     },
+    // define aliases to represent attribute value
+    // assign the client data to ':user' to use in condition above
     ExpressionAttributeValues: {
       ":user": req.params.username
     },
-    ProjectionExpression: "#th, #ca"
+    // determines which attributes or columns will be returned
+    // similar to the SELECT statement in SQL
+    // in this case we only want createdAt and the thought itself
+    ProjectionExpression: "#th, #ca",
+    // default is true which sorts in ascending order
+    // we want descending order so we set to false
+    ScanIndexForward: false
   };
 
+  // make the database call
   dynamodb.query(params, (err, data) => {
     if (err) {
       console.error("Unable to query. Error:", JSON.stringify(err, null, 2));
@@ -52,7 +84,7 @@ router.get('/users/:username', (req, res) => {
   });
 });
 
-// Create new user
+// Create new thought
 router.post('/users', (req, res) => {
   const params = {
     TableName: table,
@@ -154,4 +186,6 @@ router.delete('/users/:time/:username', (req, res) => {
 //         ":val": 5.0
 //     }
 // };
+
+// expose the endpoints
 module.exports = router;
