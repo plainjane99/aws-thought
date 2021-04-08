@@ -5,8 +5,10 @@ const AWS = require("aws-sdk");
 // config points to local instance,
 // updates local environmental variables
 AWS.config.update({
-  region: "us-east-2",
-  endpoint: "http://localhost:8000"
+    region: "us-east-2",
+    // This is for development only.  
+    // comment out when deploying to AWS.  dynamodb service object will point to the web service and not the local instance
+    //   endpoint: "http://localhost:8000"
 });
 
 // create the DynamoDB service object

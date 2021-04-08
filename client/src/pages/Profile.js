@@ -21,18 +21,39 @@ const Profile = props => {
     thought: ''
   }]);
 
+  console.log(thoughts);
+
+  // old code
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const res = await fetch(`/api/users/${userParam}`);
+  //     const data = await res.json();
+  //     // sort the array by createdAt property ordered by descending values
+  //     // const orderData = data.sort((a, b) => (a.createdAt < b.createdAt) ? 1 : -1);
+  //     console.log(data);
+  //     setThoughts(data);
+  //     setIsLoaded(true);
+  //   }
+  //   fetchData();
+  // }, []);
+
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch(`/api/users/${userParam}`);
-      const data = await res.json();
-      // sort the array by createdAt property ordered by descending values
-      // const orderData = data.sort((a, b) => (a.createdAt < b.createdAt) ? 1 : -1);
-      console.log(data);
-      setThoughts(data);
-      setIsLoaded(true);
-    }
+      try {
+        console.log(userParam);
+        // use userParam sourced from React Router to retain username from ThoughtList component
+        const res = await fetch(`/api/users/${userParam}`);
+        const data = await res.json();
+        // not sure if '...data' is required.  'data' seems to work.
+        console.log(data);
+        setThoughts([...data]);
+        setIsLoaded(true);
+      } catch (error) {
+        console.log(error);
+      }
+    };
     fetchData();
-  }, []);
+  }, [userParam]);
 
   return (
     <div>
@@ -47,7 +68,8 @@ const Profile = props => {
         {!isLoaded ? (
             <div>Loading...</div>
           ) : (
-          <ThoughtList thoughts={thoughts} title={`${userParam}'s thoughts...`} />
+            // added username to this in order for it to be propagated
+          <ThoughtList username={userParam} thoughts={thoughts} title={`${userParam}'s thoughts...`} />
           )}
         </div>
       </div>

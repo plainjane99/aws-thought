@@ -8,14 +8,38 @@ const Home = () => {
 
   // const loggedIn = Auth.loggedIn();
 
+  // old code
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     // fetch the data and save to res constant
+  //     const res = await fetch('/api/users');
+  //     // store res as json in data constant
+  //     const data = await res.json();
+  //     // sort the array by createdAt property ordered by descending values
+  //     const orderData = data.sort((a, b) => (a.createdAt < b.createdAt) ? 1 : -1);
+  //     setThoughts(orderData);
+  //     setIsLoaded(true);
+  //   }
+  //   fetchData();
+  // }, []);
+
+  // request all the users' thoughts to render on the component mount event
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch('/api/users');
-      const data = await res.json();
-      // sort the array by createdAt property ordered by descending values
-      const orderData = data.sort((a, b) => (a.createdAt < b.createdAt) ? 1 : -1);
-      setThoughts(orderData);
-      setIsLoaded(true);
+      try {
+        // fetch the data and save to res constant
+        const res = await fetch('/api/users');
+        // store res as json in jsonData constant
+        const jsonData = await res.json();
+        // sort the array by createdAt property ordered by descending values
+        const data = jsonData.sort((a, b) => (a.createdAt < b.createdAt) ? 1 : -1);
+        // console.log(data);
+        // store the data using the useState setter method, setThoughts
+        setThoughts([...data]);
+        setIsLoaded(true);
+      } catch (error) {
+        console.log(error);
+      }
     }
     fetchData();
   }, []);

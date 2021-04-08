@@ -9,8 +9,7 @@ const AWS = require("aws-sdk");
 // updates local environmental variables
 const awsConfig = {
   region: "us-east-2",
-  endpoint: "http://localhost:8000",
-
+  // endpoint: "http://localhost:8000",
 };
 AWS.config.update(awsConfig);
 
@@ -66,7 +65,7 @@ router.get('/users/:username', (req, res) => {
     // determines which attributes or columns will be returned
     // similar to the SELECT statement in SQL
     // in this case we only want createdAt and the thought itself
-    ProjectionExpression: "#th, #ca",
+    ProjectionExpression: "#th, #ca, #un",
     // default is true which sorts in ascending order
     // we want descending order so we set to false
     ScanIndexForward: false

@@ -17,6 +17,7 @@ const ThoughtForm = () => {
     event.preventDefault();
     // POST method with formState
     const postData = async () => {
+      // use fetch to send the form data to the endpoint in the body of the request
       const res = await fetch('/api/users', {
         method: 'POST',
         headers: {
